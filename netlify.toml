@@ -1,0 +1,19 @@
+# netlify.toml (repo root)
+
+[build]
+  publish = "public"   # <-- tell Netlify to serve the /public folder (where index.html lives)
+
+# Proxy API calls from the Netlify site to your backend API.
+# CHANGE the domain below to your real backend URL.
+[[redirects]]
+  from = "/api/*"
+  to = "https://YOUR-BACKEND-DOMAIN.example.com/api/:splat"
+  status = 200
+  force = true
+
+# (optional) health proxy
+[[redirects]]
+  from = "/healthz"
+  to = "https://YOUR-BACKEND-DOMAIN.example.com/healthz"
+  status = 200
+  force = true
