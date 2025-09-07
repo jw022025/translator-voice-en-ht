@@ -1,10 +1,19 @@
 # Node
+# Node
 node_modules/
-npm-debug.log*
-pnpm-lock.yaml
-yarn.lock
+npm-debug.log
 
-# OS & editor
+# Env files
+.env
+
+# Docker
+*.log
+data/               # <-- exclude collected audio/metadata (too heavy for Git)
+*.pid
+*.tar
+*.gz
+
+# System files
 .DS_Store
 .vscode/
 .env
