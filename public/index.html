@@ -1,84 +1,1195 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Translator – Mic Test</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8" />
+  <title>Translation Lab | Medical & Insurance EN↔HT</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Professional English-Haitian Creole translation data collection for medical and insurance terminology" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; margin: 2rem; }
-    button { margin-right: .5rem; padding: .5rem 1rem; }
-    .log { white-space: pre-wrap; background: #f7f7f7; padding: .75rem; border-radius: .5rem; }
+    :root {
+      --primary-color: #2563eb;
+      --primary-dark: #1d4ed8;
+      --secondary-color: #7c3aed;
+      --success-color: #10b981;
+      --warning-color: #f59e0b;
+      --error-color: #ef4444;
+      --neutral-50: #f9fafb;
+      --neutral-100: #f3f4f6;
+      --neutral-200: #e5e7eb;
+      --neutral-300: #d1d5db;
+      --neutral-400: #9ca3af;
+      --neutral-500: #6b7280;
+      --neutral-600: #4b5563;
+      --neutral-700: #374151;
+      --neutral-800: #1f2937;
+      --neutral-900: #111827;
+      --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+      --border-radius: 12px;
+      --border-radius-lg: 16px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-theme="dark"] {
+      --neutral-50: #111827;
+      --neutral-100: #1f2937;
+      --neutral-200: #374151;
+      --neutral-300: #4b5563;
+      --neutral-400: #6b7280;
+      --neutral-500: #9ca3af;
+      --neutral-600: #d1d5db;
+      --neutral-700: #e5e7eb;
+      --neutral-800: #f3f4f6;
+      --neutral-900: #f9fafb;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--neutral-50);
+      color: var(--neutral-900);
+      line-height: 1.6;
+      transition: var(--transition);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding: 2rem 1rem;
+      background: var(--gradient-primary);
+      border-radius: var(--border-radius-lg);
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+      opacity: 0.3;
+    }
+
+    .header-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .header h1 {
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .theme-toggle {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      padding: 0.75rem;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: var(--transition);
+      backdrop-filter: blur(10px);
+    }
+
+    .theme-toggle:hover {
+      background: rgba(255,255,255,0.3);
+      transform: scale(1.1);
+    }
+
+    /* Main Layout */
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      flex: 1;
+    }
+
+    @media (min-width: 1024px) {
+      .main-content {
+        grid-template-columns: 1fr 300px;
+      }
+    }
+
+    /* Cards */
+    .card {
+      background: white;
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--neutral-200);
+      transition: var(--transition);
+    }
+
+    [data-theme="dark"] .card {
+      background: var(--neutral-100);
+      border-color: var(--neutral-300);
+    }
+
+    .card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--neutral-800);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Term Generation Section */
+    .term-section {
+      margin-bottom: 2rem;
+    }
+
+    .term-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      align-items: center;
+    }
+
+    .category-select {
+      position: relative;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .category-select select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 2px solid var(--neutral-300);
+      border-radius: var(--border-radius);
+      background: white;
+      color: var(--neutral-800);
+      font-size: 1rem;
+      transition: var(--transition);
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+      background-position: right 0.5rem center;
+      background-repeat: no-repeat;
+      background-size: 1.5em 1.5em;
+      padding-right: 3rem;
+    }
+
+    [data-theme="dark"] .category-select select {
+      background: var(--neutral-100);
+      border-color: var(--neutral-400);
+      color: var(--neutral-800);
+    }
+
+    .category-select select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .btn:hover::before {
+      left: 100%;
+    }
+
+    .btn-primary {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-secondary {
+      background: var(--neutral-200);
+      color: var(--neutral-700);
+    }
+
+    .btn-secondary:hover {
+      background: var(--neutral-300);
+      transform: translateY(-1px);
+    }
+
+    .btn-success {
+      background: var(--success-color);
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #059669;
+      transform: translateY(-1px);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn:disabled:hover {
+      transform: none;
+    }
+
+    /* Input Fields */
+    .input-group {
+      margin-bottom: 1rem;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--neutral-700);
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 2px solid var(--neutral-300);
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+      transition: var(--transition);
+      background: white;
+      color: var(--neutral-800);
+    }
+
+    [data-theme="dark"] .input-field {
+      background: var(--neutral-100);
+      border-color: var(--neutral-400);
+      color: var(--neutral-800);
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .input-field:read-only {
+      background: var(--neutral-100);
+      cursor: not-allowed;
+    }
+
+    /* Recording Section */
+    .recording-section {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+      .recording-section {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .recording-card {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .recording-card.recording {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
+      border-color: var(--error-color);
+    }
+
+    .recording-card.recorded {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+      border-color: var(--success-color);
+    }
+
+    .recording-controls {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .audio-player {
+      width: 100%;
+      margin: 1rem 0;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+    }
+
+    .recording-status {
+      padding: 0.75rem;
+      border-radius: var(--border-radius);
+      background: var(--neutral-100);
+      border: 1px solid var(--neutral-200);
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 0.875rem;
+      color: var(--neutral-600);
+      min-height: 3rem;
+      display: flex;
+      align-items: center;
+    }
+
+    [data-theme="dark"] .recording-status {
+      background: var(--neutral-200);
+      border-color: var(--neutral-400);
+      color: var(--neutral-500);
+    }
+
+    .recording-status.success {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success-color);
+      border-color: var(--success-color);
+    }
+
+    .recording-status.error {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--error-color);
+      border-color: var(--error-color);
+    }
+
+    /* Progress Indicator */
+    .progress-indicator {
+      display: flex;
+      justify-content: space-between;
+      margin: 1.5rem 0;
+      position: relative;
+    }
+
+    .progress-indicator::before {
+      content: '';
+      position: absolute;
+      top: 1rem;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--neutral-300);
+      z-index: 1;
+    }
+
+    .progress-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .progress-step-circle {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      background: var(--neutral-300);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.5rem;
+      transition: var(--transition);
+    }
+
+    .progress-step.active .progress-step-circle {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .progress-step.completed .progress-step-circle {
+      background: var(--success-color);
+      color: white;
+    }
+
+    .progress-step-label {
+      font-size: 0.75rem;
+      color: var(--neutral-600);
+      text-align: center;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .stats-card {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      display: block;
+    }
+
+    .stat-label {
+      color: var(--neutral-600);
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+
+    /* Final Section */
+    .final-section {
+      margin-top: 2rem;
+    }
+
+    .consent-section {
+      background: var(--neutral-100);
+      padding: 1.5rem;
+      border-radius: var(--border-radius);
+      margin-bottom: 1.5rem;
+    }
+
+    [data-theme="dark"] .consent-section {
+      background: var(--neutral-200);
+    }
+
+    .consent-checkbox {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .consent-checkbox input[type="checkbox"] {
+      margin-top: 0.25rem;
+      transform: scale(1.2);
+    }
+
+    .consent-text {
+      font-size: 0.9rem;
+      color: var(--neutral-700);
+      line-height: 1.5;
+    }
+
+    .annotator-field {
+      display: flex;
+      gap: 1rem;
+      align-items: end;
+    }
+
+    .annotator-field .input-group {
+      flex: 1;
+      margin-bottom: 0;
+    }
+
+    /* Animations */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .recording .recording-status {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card {
+      animation: slideIn 0.6s ease-out;
+    }
+
+    /* Mobile Optimizations */
+    @media (max-width: 768px) {
+      .container {
+        padding: 0.5rem;
+      }
+
+      .header {
+        margin-bottom: 1rem;
+        padding: 1.5rem 1rem;
+      }
+
+      .term-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .recording-controls {
+        justify-content: center;
+      }
+
+      .btn {
+        padding: 0.875rem 1rem;
+        font-size: 0.9rem;
+      }
+
+      .annotator-field {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+    }
+
+    /* Focus styles for accessibility */
+    .btn:focus-visible,
+    .input-field:focus-visible,
+    select:focus-visible {
+      outline: 2px solid var(--primary-color);
+      outline-offset: 2px;
+    }
+
+    /* Loading spinner */
+    .loading {
+      display: inline-block;
+      width: 1rem;
+      height: 1rem;
+      border: 2px solid transparent;
+      border-top: 2px solid currentColor;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
-  <h1>EN → (ASR stub) – Mic Capture</h1>
-  <p>Record, playback, then send audio to <code>/api/asr/en</code>. For now this returns a dummy transcript.</p>
+  <div class="container">
+    <header class="header">
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        <i class="fas fa-moon"></i>
+      </button>
+      <div class="header-content">
+        <h1><i class="fas fa-language"></i> Translation Lab</h1>
+        <p>Professional Medical & Insurance terminology collection for English ↔ Haitian Creole translation models</p>
+      </div>
+    </header>
 
-  <div>
-    <button id="btnStart">🎙️ Start</button>
-    <button id="btnStop" disabled>⏹️ Stop</button>
-    <button id="btnSend" disabled>📤 Send to /api/asr/en</button>
+    <div class="main-content">
+      <main class="main-panel">
+        <!-- Progress Indicator -->
+        <div class="progress-indicator">
+          <div class="progress-step" id="step1">
+            <div class="progress-step-circle"><i class="fas fa-lightbulb"></i></div>
+            <span class="progress-step-label">Generate</span>
+          </div>
+          <div class="progress-step" id="step2">
+            <div class="progress-step-circle"><i class="fas fa-microphone"></i></div>
+            <span class="progress-step-label">Record</span>
+          </div>
+          <div class="progress-step" id="step3">
+            <div class="progress-step-circle"><i class="fas fa-upload"></i></div>
+            <span class="progress-step-label">Upload</span>
+          </div>
+          <div class="progress-step" id="step4">
+            <div class="progress-step-circle"><i class="fas fa-save"></i></div>
+            <span class="progress-step-label">Save</span>
+          </div>
+        </div>
+
+        <!-- Term Generation -->
+        <div class="card term-section">
+          <h2 class="card-title">
+            <i class="fas fa-magic"></i>
+            Term Generation
+          </h2>
+          
+          <div class="term-controls">
+            <div class="category-select">
+              <label for="category">Category:</label>
+              <select id="category">
+                <option value="medical">🏥 Medical Terms</option>
+                <option value="insurance">🛡️ Insurance Terms</option>
+              </select>
+            </div>
+            <button id="btnNewTerm" class="btn btn-secondary">
+              <i class="fas fa-dice"></i>
+              New Term
+            </button>
+            <button id="btnGenerate" class="btn btn-primary">
+              <i class="fas fa-sparkles"></i>
+              Generate Sample
+            </button>
+          </div>
+
+          <div class="input-group">
+            <label for="enTerm">English Phrase:</label>
+            <input id="enTerm" type="text" class="input-field" readonly 
+                   placeholder="Click 'Generate Sample' to get started..." />
+            <button id="btnTranslate" class="btn btn-secondary" style="margin-top: 0.5rem;">
+              <i class="fas fa-exchange-alt"></i>
+              Suggest HT Translation
+            </button>
+          </div>
+
+          <div class="input-group">
+            <label for="htText">Haitian Creole Translation:</label>
+            <input id="htText" type="text" class="input-field" 
+                   placeholder="Type or confirm the Creole translation..." />
+          </div>
+        </div>
+
+        <!-- Recording Section -->
+        <div class="recording-section">
+          <!-- English Recording -->
+          <div class="card recording-card" id="enRecordingCard">
+            <h3 class="card-title">
+              <i class="fas fa-microphone"></i>
+              Record English
+              <span id="enRecordingIndicator" class="loading" style="display: none;"></span>
+            </h3>
+            
+            <div class="recording-controls">
+              <button id="enStart" class="btn btn-primary">
+                <i class="fas fa-play"></i>
+                Start Recording
+              </button>
+              <button id="enStop" class="btn btn-secondary" disabled>
+                <i class="fas fa-stop"></i>
+                Stop
+              </button>
+              <button id="enSend" class="btn btn-success" disabled>
+                <i class="fas fa-upload"></i>
+                Upload
+              </button>
+            </div>
+            
+            <audio id="enPlayer" class="audio-player" controls style="display: none;"></audio>
+            <div id="enOut" class="recording-status">Ready to record English audio...</div>
+          </div>
+
+          <!-- Haitian Creole Recording -->
+          <div class="card recording-card" id="htRecordingCard">
+            <h3 class="card-title">
+              <i class="fas fa-microphone"></i>
+              Record Haitian Creole
+              <span id="htRecordingIndicator" class="loading" style="display: none;"></span>
+            </h3>
+            
+            <div class="recording-controls">
+              <button id="htStart" class="btn btn-primary">
+                <i class="fas fa-play"></i>
+                Start Recording
+              </button>
+              <button id="htStop" class="btn btn-secondary" disabled>
+                <i class="fas fa-stop"></i>
+                Stop
+              </button>
+              <button id="htSend" class="btn btn-success" disabled>
+                <i class="fas fa-upload"></i>
+                Upload
+              </button>
+            </div>
+            
+            <audio id="htPlayer" class="audio-player" controls style="display: none;"></audio>
+            <div id="htOut" class="recording-status">Ready to record Haitian Creole audio...</div>
+          </div>
+        </div>
+
+        <!-- Final Section -->
+        <div class="card final-section">
+          <h3 class="card-title">
+            <i class="fas fa-save"></i>
+            Finalize & Save
+          </h3>
+          
+          <div class="consent-section">
+            <div class="consent-checkbox">
+              <input id="consent" type="checkbox">
+              <label for="consent" class="consent-text">
+                <strong>Data Usage Consent:</strong> I consent to this audio and text data being used for machine learning model training and research purposes. This helps improve translation quality for the Haitian Creole community.
+              </label>
+            </div>
+            
+            <div class="annotator-field">
+              <div class="input-group">
+                <label for="annotator">Annotator (Optional):</label>
+                <input id="annotator" type="text" class="input-field" 
+                       placeholder="Your name or initials for attribution..."/>
+              </div>
+            </div>
+          </div>
+          
+          <button id="btnLink" class="btn btn-success" disabled style="width: 100%;">
+            <i class="fas fa-link"></i>
+            Link & Save Translation Pair
+          </button>
+          <div id="linkOut" class="recording-status" style="margin-top: 1rem;">
+            Complete the recording and upload steps above, then save your translation pair.
+          </div>
+        </div>
+      </main>
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="card stats-card">
+          <h3 class="card-title">
+            <i class="fas fa-chart-bar"></i>
+            Session Stats
+          </h3>
+          <div>
+            <span id="sessionCount" class="stat-number">0</span>
+            <div class="stat-label">Pairs Created</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">
+            <i class="fas fa-info-circle"></i>
+            Quick Guide
+          </h3>
+          <ol style="color: var(--neutral-600); font-size: 0.9rem; line-height: 1.6;">
+            <li>Choose a category and generate a sample phrase</li>
+            <li>Review and edit the Haitian Creole translation</li>
+            <li>Record both English and Creole pronunciations</li>
+            <li>Upload both audio files</li>
+            <li>Provide consent and save the translation pair</li>
+          </ol>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">
+            <i class="fas fa-headphones"></i>
+            Audio Tips
+          </h3>
+          <ul style="color: var(--neutral-600); font-size: 0.9rem; line-height: 1.6;">
+            <li>Speak clearly and at normal pace</li>
+            <li>Record in a quiet environment</li>
+            <li>Keep recordings under 10 seconds</li>
+            <li>You can re-record if needed</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
   </div>
 
-  <h3>Playback</h3>
-  <audio id="player" controls></audio>
-
-  <h3>Response</h3>
-  <div id="out" class="log"></div>
-
   <script>
-    const btnStart = document.getElementById('btnStart');
-    const btnStop  = document.getElementById('btnStop');
-    const btnSend  = document.getElementById('btnSend');
-    const player   = document.getElementById('player');
-    const out      = document.getElementById('out');
+    // Theme Management
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+    
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    body.setAttribute('data-theme', savedTheme);
+    updateThemeIcon();
 
-    let mediaRecorder, chunks = [], lastBlob = null;
-    const API_BASE = location.origin; // same origin as the page
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = body.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      body.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeIcon();
+    });
 
-    btnStart.onclick = async () => {
-      chunks = []; lastBlob = null;
-      out.textContent = 'Requesting mic…';
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-          ? 'audio/webm;codecs=opus' : 'audio/webm';
-        mediaRecorder = new MediaRecorder(stream, { mimeType });
-        mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
-        mediaRecorder.onstop = () => {
-          lastBlob = new Blob(chunks, { type: mimeType });
-          player.src = URL.createObjectURL(lastBlob);
-          btnSend.disabled = false;
-          out.textContent = `Recorded ${Math.round(lastBlob.size/1024)} KB (${mimeType}). Ready to send.`;
-        };
-        mediaRecorder.start();
-        btnStart.disabled = true; btnStop.disabled = false; btnSend.disabled = true;
-        out.textContent = 'Recording…';
-      } catch (err) { out.textContent = 'Mic error: ' + err; }
+    function updateThemeIcon() {
+      const theme = body.getAttribute('data-theme');
+      const icon = themeToggle.querySelector('i');
+      icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    }
+
+    // Term lists
+    const TERMS = {
+      medical: ["Hypertension","Diabetes","Asthma","Heart attack","Prescription","Dosage","Allergy","Appointment","Emergency","Vaccination"],
+      insurance: ["Premium","Deductible","Copay","Claim","Coverage","Policy number","Effective date","Out-of-pocket maximum","Pre-authorization","In-network provider"]
     };
 
-    btnStop.onclick = () => {
-      if (mediaRecorder && mediaRecorder.state === 'recording') {
-        mediaRecorder.stop();
-        btnStart.disabled = false; btnStop.disabled = true;
+    // Phrase templates to diversify English prompts
+    const TEMPLATES = {
+      medical: [
+        "I have a question about {TERM}.",
+        "My doctor mentioned {TERM}. What does it mean?",
+        "Do I need an appointment for {TERM}?",
+        "What are the side effects of {TERM}?",
+        "How should I manage {TERM}?"
+      ],
+      insurance: [
+        "I want to understand my {TERM}.",
+        "How does my {TERM} affect the price?",
+        "Can you explain {TERM} on my plan?",
+        "Do I need {TERM} for this visit?",
+        "What is my {TERM} amount?"
+      ]
+    };
+
+    // Small dictionary for term substitution
+    const DICT = {
+      "Hypertension":"Tansyon wo","Diabetes":"Dyabèt","Asthma":"Azm","Heart attack":"Kriz kadyak","Prescription":"Preskripsyon","Dosage":"Dòz","Allergy":"Alèji","Appointment":"Randevou","Emergency":"Ijans","Vaccination":"Vaksinasyon",
+      "Premium":"Prim","Deductible":"Franšíz","Copay":"Kopeman","Claim":"Reklamasyon","Coverage":"Kouvèti","Policy number":"Nimewo polisi","Effective date":"Dat validite","Out-of-pocket maximum":"Maksimòm depans pèsonèl","Pre-authorization":"Pre-otorizasyon","In-network provider":"Founisè nan rezo a"
+    };
+
+    // Elements
+    const catSel = document.getElementById('category');
+    const btnNewTerm = document.getElementById('btnNewTerm');
+    const btnGenerate = document.getElementById('btnGenerate');
+    const enTerm = document.getElementById('enTerm');
+    const htText = document.getElementById('htText');
+    const btnTranslate = document.getElementById('btnTranslate');
+    const annotator = document.getElementById('annotator');
+    const consent = document.getElementById('consent');
+    const btnLink = document.getElementById('btnLink');
+    const linkOut = document.getElementById('linkOut');
+
+    const enStart = document.getElementById('enStart');
+    const enStop  = document.getElementById('enStop');
+    const enSend  = document.getElementById('enSend');
+    const enPlayer= document.getElementById('enPlayer');
+    const enOut   = document.getElementById('enOut');
+    const enRecordingCard = document.getElementById('enRecordingCard');
+    const enRecordingIndicator = document.getElementById('enRecordingIndicator');
+
+    const htStart = document.getElementById('htStart');
+    const htStop  = document.getElementById('htStop');
+    const htSend  = document.getElementById('htSend');
+    const htPlayer= document.getElementById('htPlayer');
+    const htOut   = document.getElementById('htOut');
+    const htRecordingCard = document.getElementById('htRecordingCard');
+    const htRecordingIndicator = document.getElementById('htRecordingIndicator');
+
+    const sessionCount = document.getElementById('sessionCount');
+
+    // Progress steps
+    const step1 = document.getElementById('step1');
+    const step2 = document.getElementById('step2');
+    const step3 = document.getElementById('step3');
+    const step4 = document.getElementById('step4');
+
+    const API_BASE = location.origin; // Netlify will proxy /api/* to backend
+
+    // Session state
+    let pairsCreated = parseInt(localStorage.getItem('pairsCreated') || '0');
+    sessionCount.textContent = pairsCreated;
+
+    // Recorders & state
+    let enRecorder, enBlob = null, enAudioId = null;
+    let htRecorder, htBlob = null, htAudioId = null;
+
+    function pick(arr){ return arr[Math.floor(Math.random()*arr.length)] || ""; }
+    
+    function resetState(){
+      enBlob = htBlob = null; 
+      enAudioId = htAudioId = null;
+      enPlayer.src = htPlayer.src = "";
+      enPlayer.style.display = htPlayer.style.display = "none";
+      enSend.disabled = htSend.disabled = true;
+      btnLink.disabled = true;
+      enOut.textContent = "Ready to record English audio...";
+      htOut.textContent = "Ready to record Haitian Creole audio...";
+      linkOut.textContent = "Complete the recording and upload steps above, then save your translation pair.";
+      enRecordingCard.classList.remove('recording', 'recorded');
+      htRecordingCard.classList.remove('recording', 'recorded');
+      updateProgressSteps();
+    }
+
+    function updateProgressSteps() {
+      // Reset all steps
+      [step1, step2, step3, step4].forEach(step => {
+        step.classList.remove('active', 'completed');
+      });
+
+      // Step 1: Generate (completed if we have terms)
+      if (enTerm.value.trim()) {
+        step1.classList.add('completed');
+      } else {
+        step1.classList.add('active');
+        return;
       }
+
+      // Step 2: Record (active if generating done, completed if both recorded)
+      if (enBlob && htBlob) {
+        step2.classList.add('completed');
+      } else {
+        step2.classList.add('active');
+        return;
+      }
+
+      // Step 3: Upload (active if recording done, completed if both uploaded)
+      if (enAudioId && htAudioId) {
+        step3.classList.add('completed');
+      } else {
+        step3.classList.add('active');
+        return;
+      }
+
+      // Step 4: Save (active if upload done)
+      step4.classList.add('active');
+    }
+
+    btnNewTerm.onclick = () => {
+      resetState();
+      enTerm.value = pick(TERMS[catSel.value]); // plain term
+      htText.value = "";
+      updateProgressSteps();
     };
 
-    btnSend.onclick = async () => {
-      if (!lastBlob) { out.textContent = 'No audio recorded.'; return; }
-      out.textContent = 'Uploading…';
+    btnGenerate.onclick = () => {
+      resetState();
+      const cat = catSel.value;
+      const term = pick(TERMS[cat]);
+      const tmpl = pick(TEMPLATES[cat]);
+      enTerm.value = tmpl.replace("{TERM}", term);
+      htText.value = DICT[term] ? enTerm.value.replaceAll(term, DICT[term]) : "";
+      linkOut.textContent = "✨ Sample generated! Now record both English and Haitian Creole audio.";
+      linkOut.className = "recording-status success";
+      updateProgressSteps();
+    };
+
+    btnTranslate.onclick = () => {
+      let phrase = enTerm.value.trim();
+      let replaced = false;
+      for (const [k,v] of Object.entries(DICT)) {
+        if (phrase.includes(k)) { phrase = phrase.replaceAll(k, v); replaced = true; }
+      }
+      htText.value = replaced ? phrase : "";
+      linkOut.textContent = replaced ? "✅ HT suggestion filled. Edit if needed." : "ℹ️ No dictionary match; type HT manually.";
+      linkOut.className = "recording-status" + (replaced ? " success" : "");
+    };
+
+    async function startRec(which) {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm';
+      const rec = new MediaRecorder(stream, { mimeType });
+      const chunks = [];
+      
+      rec.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+      rec.onstop = () => {
+        const blob = new Blob(chunks, { type: mimeType });
+        if (which === 'en') { 
+          enBlob = blob; 
+          enPlayer.src = URL.createObjectURL(enBlob); 
+          enPlayer.style.display = "block";
+          enSend.disabled = false; 
+          enOut.textContent = `🎵 EN recorded (${Math.round(enBlob.size/1024)} KB) - Ready to upload!`;
+          enOut.className = "recording-status success";
+          enRecordingCard.classList.remove('recording');
+          enRecordingCard.classList.add('recorded');
+          enRecordingIndicator.style.display = 'none';
+        } else { 
+          htBlob = blob; 
+          htPlayer.src = URL.createObjectURL(htBlob); 
+          htPlayer.style.display = "block";
+          htSend.disabled = false; 
+          htOut.textContent = `🎵 HT recorded (${Math.round(htBlob.size/1024)} KB) - Ready to upload!`;
+          htOut.className = "recording-status success";
+          htRecordingCard.classList.remove('recording');
+          htRecordingCard.classList.add('recorded');
+          htRecordingIndicator.style.display = 'none';
+        }
+        updateProgressSteps();
+      };
+      
+      rec.start();
+      return rec;
+    }
+
+    enStart.onclick = async ()=>{ 
+      enRecorder = await startRec('en'); 
+      enStart.disabled = true; 
+      enStop.disabled = false; 
+      enRecordingCard.classList.add('recording');
+      enRecordingIndicator.style.display = 'inline-block';
+      enOut.textContent = "🎙️ Recording English... Click 'Stop' when finished.";
+      enOut.className = "recording-status";
+    };
+
+    enStop.onclick = ()=>{ 
+      if (enRecorder && enRecorder.state === 'recording') enRecorder.stop(); 
+      enStart.disabled = false; 
+      enStop.disabled = true; 
+    };
+
+    htStart.onclick = async ()=>{ 
+      htRecorder = await startRec('ht'); 
+      htStart.disabled = true; 
+      htStop.disabled = false; 
+      htRecordingCard.classList.add('recording');
+      htRecordingIndicator.style.display = 'inline-block';
+      htOut.textContent = "🎙️ Recording Haitian Creole... Click 'Stop' when finished.";
+      htOut.className = "recording-status";
+    };
+
+    htStop.onclick = ()=>{ 
+      if (htRecorder && htRecorder.state === 'recording') htRecorder.stop(); 
+      htStart.disabled = false; 
+      htStop.disabled = true; 
+    };
+
+    async function upload(which){
+      const blob = which === 'en' ? enBlob : htBlob;
+      const statusEl = which === 'en' ? enOut : htOut;
+      const sendBtn = which === 'en' ? enSend : htSend;
+      
+      if (!blob) return;
+      
+      sendBtn.disabled = true;
+      sendBtn.innerHTML = '<i class="loading"></i> Uploading...';
+      statusEl.textContent = "📤 Uploading audio file...";
+      statusEl.className = "recording-status";
+      
       try {
-        const res = await fetch(`${API_BASE}/api/asr/en`, {
-          method: 'POST',
-          headers: { 'Content-Type': lastBlob.type || 'application/octet-stream' },
-          body: lastBlob
+        const res = await fetch(`${API_BASE}/api/asr/${which}`, { 
+          method:'POST', 
+          headers:{'Content-Type': blob.type || 'application/octet-stream'}, 
+          body: blob 
         });
         const json = await res.json();
-        out.textContent = JSON.stringify(json, null, 2);
+        
+        if (json.ok) {
+          if (which === 'en') { 
+            enAudioId = json.id; 
+            enOut.textContent = `✅ EN uploaded successfully! (ID: ${enAudioId})`;
+            enOut.className = "recording-status success";
+          } else { 
+            htAudioId = json.id; 
+            htOut.textContent = `✅ HT uploaded successfully! (ID: ${htAudioId})`;
+            htOut.className = "recording-status success";
+          }
+        } else {
+          statusEl.textContent = `❌ Upload failed: ${json.error || 'Unknown error'}`;
+          statusEl.className = "recording-status error";
+        }
       } catch (err) {
-        out.textContent = 'Upload error: ' + err;
+        statusEl.textContent = `❌ Upload error: ${err.message}`;
+        statusEl.className = "recording-status error";
       }
+      
+      sendBtn.innerHTML = which === 'en' ? '<i class="fas fa-upload"></i> Upload' : '<i class="fas fa-upload"></i> Upload';
+      sendBtn.disabled = false;
+      btnLink.disabled = !(enAudioId && htAudioId && consent.checked);
+      updateProgressSteps();
+    }
+
+    enSend.onclick = ()=>upload('en');
+    htSend.onclick = ()=>upload('ht');
+
+    consent.addEventListener('change', ()=>{ 
+      btnLink.disabled = !(enAudioId && htAudioId && consent.checked); 
+    });
+
+    btnLink.onclick = async ()=>{
+      if (!consent.checked) { 
+        linkOut.textContent = "⚠️ Please provide consent before saving.";
+        linkOut.className = "recording-status error";
+        return; 
+      }
+      
+      const payload = {
+        term: enTerm.value.trim(),
+        category: catSel.value,
+        enText: enTerm.value.trim(),
+        htText: htText.value.trim(),
+        enAudioId, htAudioId,
+        annotator: annotator.value.trim() || 'anonymous',
+        consent: true
+      };
+      
+      btnLink.disabled = true;
+      btnLink.innerHTML = '<i class="loading"></i> Saving...';
+      linkOut.textContent = '💾 Linking and saving translation pair...';
+      linkOut.className = "recording-status";
+      
+      try {
+        const res = await fetch(`${API_BASE}/api/samples/link`, { 
+          method:'POST', 
+          headers:{'Content-Type':'application/json'}, 
+          body: JSON.stringify(payload) 
+        });
+        const json = await res.json();
+        
+        if (json.ok) {
+          pairsCreated++;
+          sessionCount.textContent = pairsCreated;
+          localStorage.setItem('pairsCreated', pairsCreated.toString());
+          
+          linkOut.textContent = `🎉 Translation pair saved successfully! (ID: ${json.sampleId})`;
+          linkOut.className = "recording-status success";
+          step4.classList.remove('active');
+          step4.classList.add('completed');
+          
+          // Auto-advance to next term after 2 seconds
+          setTimeout(() => {
+            btnGenerate.click();
+          }, 2000);
+        } else {
+          linkOut.textContent = `❌ Save failed: ${json.error || 'Unknown error'}`;
+          linkOut.className = "recording-status error";
+        }
+      } catch (err) {
+        linkOut.textContent = `❌ Save error: ${err.message}`;
+        linkOut.className = "recording-status error";
+      }
+      
+      btnLink.innerHTML = '<i class="fas fa-link"></i> Link & Save Translation Pair';
+      btnLink.disabled = false;
     };
+
+    // Initialize with first term
+    btnGenerate.click();
   </script>
 </body>
 </html>
