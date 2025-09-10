@@ -1,5 +1,4 @@
-const { Handler } = require('@netlify/functions');
-
+// Simple test function without any imports
 exports.handler = async (event, context) => {
   console.log('🚀 TEST-SIMPLE FUNCTION CALLED', {
     method: event.httpMethod,
