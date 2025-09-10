@@ -3,6 +3,13 @@
 [build]
   publish = "public"   # <-- tell Netlify to serve the /public folder (where index.html lives)
   functions = "netlify/functions"  # <-- tell Netlify where to find functions
+  command = "npm run build"  # <-- build command
+  
+[functions]
+  node_bundler = "esbuild"  # <-- use esbuild for ES modules
+  
+[build.environment]
+  NODE_VERSION = "18"  # <-- specify Node.js version
 
 # Security headers
 [[headers]]

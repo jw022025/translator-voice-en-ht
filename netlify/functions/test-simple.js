@@ -1,4 +1,12 @@
+import { Handler } from '@netlify/functions';
+
 export const handler = async (event, context) => {
+  console.log('🚀 TEST-SIMPLE FUNCTION CALLED', {
+    method: event.httpMethod,
+    path: event.path,
+    timestamp: new Date().toISOString()
+  });
+
   return {
     statusCode: 200,
     headers: {
@@ -7,7 +15,11 @@ export const handler = async (event, context) => {
     },
     body: JSON.stringify({
       message: 'Simple test function works!',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      event: {
+        method: event.httpMethod,
+        path: event.path
+      }
     })
   };
 };
