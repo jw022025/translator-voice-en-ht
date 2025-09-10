@@ -12,20 +12,38 @@
     X-XSS-Protection = "1; mode=block"
     Referrer-Policy = "strict-origin-when-cross-origin"
 
-# Proxy API calls from the Netlify site to your backend API.
-# Using Railway deployment for the backend
-[[redirects]]
-  from = "/api/*"
-  to = "https://translator-voice-en-ht-production.up.railway.app/api/:splat"
-  status = 200
-  force = true
+# TEMPORARY SOLUTION: Using Netlify functions until backend is deployed
+# This provides basic functionality to test the UI while backend deployment is in progress
 
-# Health proxy
+# Audio upload endpoints
+[[redirects]]
+  from = "/api/asr/en"
+  to = "/.netlify/functions/asr-upload"
+  status = 200
+
+[[redirects]]
+  from = "/api/asr/ht"
+  to = "/.netlify/functions/asr-upload"
+  status = 200
+
+# Sample linking endpoint
+[[redirects]]
+  from = "/api/samples/link"
+  to = "/.netlify/functions/samples-link"
+  status = 200
+
+# Health check endpoint
 [[redirects]]
   from = "/healthz"
-  to = "https://translator-voice-en-ht-production.up.railway.app/healthz"
+  to = "/.netlify/functions/healthz"
   status = 200
-  force = true
+
+# Future: Replace with real backend deployment
+# [[redirects]]
+#   from = "/api/*"
+#   to = "https://YOUR-BACKEND-URL.com/api/:splat"
+#   status = 200
+#   force = true
 
 # Handle client-side routing
 [[redirects]]
