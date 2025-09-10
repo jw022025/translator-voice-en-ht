@@ -42,6 +42,13 @@
   status = 200
   force = true
 
+# Simple test endpoint
+[[redirects]]
+  from = "/test"
+  to = "/.netlify/functions/test-simple"
+  status = 200
+  force = true
+
 # Future: Replace with real backend deployment
 # [[redirects]]
 #   from = "/api/*"
