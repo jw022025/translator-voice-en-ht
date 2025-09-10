@@ -21,7 +21,16 @@ import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 
 const PORT = process.env.PORT || 8080;
+const NODE_ENV = process.env.NODE_ENV || 'development';
+const MAX_FILE_SIZE = parseInt(process.env.MAX_FILE_SIZE) || 10 * 1024 * 1024; // 10MB default
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
+
+// Simple structured logging
+const logger = {
+  info: (message, meta = {}) => console.log(JSON.stringify({ level: 'info', message, ...meta, timestamp: new Date().toISOString() })),
+  error: (message, meta = {}) => console.error(JSON.stringify({ level: 'error', message, ...meta, timestamp: new Date().toISOString() })),
+  warn: (message, meta = {}) => console.warn(JSON.stringify({ level: 'warn', message, ...meta, timestamp: new Date().toISOString() }))
+};
 
 // ---------- paths & helpers ----------
 const DATA_ROOT     = path.join(__dirname, 'data');
@@ -33,9 +42,10 @@ const MANIFESTS_DIR = path.join(DATA_ROOT, 'manifests');
 function ensureDir(dir) { 
   try { 
     fs.mkdirSync(dir, { recursive: true }); 
+    logger.info('Directory ensured', { dir });
   } catch (err) {
-    // Log the error but don't throw - let the file operations handle the failure
-    console.error(`Warning: Failed to create directory ${dir}:`, err.message);
+    logger.error('Failed to create directory', { dir, error: err.message });
+    throw err;
   }
 }
 
@@ -67,9 +77,18 @@ function serveFile(res, absPath) {
   }
 }
 
-async function readBody(req) {
+async function readBody(req, maxSize = MAX_FILE_SIZE) {
   const chunks = [];
-  for await (const c of req) chunks.push(c);
+  let totalSize = 0;
+  
+  for await (const chunk of req) {
+    totalSize += chunk.length;
+    if (totalSize > maxSize) {
+      throw new Error(`Request body too large. Max size: ${maxSize} bytes`);
+    }
+    chunks.push(chunk);
+  }
+  
   return Buffer.concat(chunks);
 }
 
@@ -79,16 +98,45 @@ const server = http.createServer(async (req, res) => {
     const url = new URL(req.url, `http://${req.headers.host}`);
     const method = req.method || 'GET';
 
-  // Dev CORS (safe because Netlify will proxy /api back to this origin)
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  // CORS configuration based on environment
+  const allowedOrigins = NODE_ENV === 'production' 
+    ? ['https://translator-voice-en-ht.netlify.app']
+    : ['*'];
+  
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin || '*');
+  }
+  
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  if (method === 'OPTIONS') { res.writeHead(204); res.end(); return; }
+  res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
+  
+  if (method === 'OPTIONS') { 
+    res.writeHead(204); 
+    res.end(); 
+    return; 
+  }
 
-  // Health
+  // Enhanced health check
   if (url.pathname === '/healthz' && method === 'GET') {
+    const health = {
+      ok: true,
+      service: 'translator-voice-en-ht',
+      version: '0.1.0',
+      uptime: Math.floor(process.uptime()),
+      timestamp: new Date().toISOString(),
+      environment: NODE_ENV,
+      memory: process.memoryUsage(),
+      diskSpace: {
+        dataDir: DATA_ROOT,
+        exists: fs.existsSync(DATA_ROOT)
+      }
+    };
+    
+    logger.info('Health check requested', { ip: req.socket.remoteAddress });
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ ok: true, service: 'translator-lab0' }));
+    res.end(JSON.stringify(health, null, 2));
     return;
   }
 
