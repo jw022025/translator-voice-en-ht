@@ -2,6 +2,7 @@
 
 [build]
   publish = "public"   # <-- tell Netlify to serve the /public folder (where index.html lives)
+  functions = "netlify/functions"  # <-- tell Netlify where to find functions
 
 # Security headers
 [[headers]]
