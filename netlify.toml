@@ -15,28 +15,32 @@
 # TEMPORARY SOLUTION: Using Netlify functions until backend is deployed
 # This provides basic functionality to test the UI while backend deployment is in progress
 
-# Audio upload endpoints
+# Audio upload endpoints - MUST come before catch-all
 [[redirects]]
   from = "/api/asr/en"
   to = "/.netlify/functions/asr-upload"
   status = 200
+  force = true
 
 [[redirects]]
-  from = "/api/asr/ht"
+  from = "/api/asr/ht" 
   to = "/.netlify/functions/asr-upload"
   status = 200
+  force = true
 
 # Sample linking endpoint
 [[redirects]]
   from = "/api/samples/link"
   to = "/.netlify/functions/samples-link"
   status = 200
+  force = true
 
 # Health check endpoint
 [[redirects]]
   from = "/healthz"
   to = "/.netlify/functions/healthz"
   status = 200
+  force = true
 
 # Future: Replace with real backend deployment
 # [[redirects]]
@@ -45,8 +49,9 @@
 #   status = 200
 #   force = true
 
-# Handle client-side routing
+# Handle client-side routing (but NOT API calls or functions)
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+  conditions = {Path = ["!/api/*", "!/.netlify/*"]}

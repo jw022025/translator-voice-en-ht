@@ -1,5 +1,13 @@
 // Temporary Netlify function to handle audio uploads until backend is deployed
 export const handler = async (event, context) => {
+  // TRACE: Function entry point
+  console.log('🚀 ASR-UPLOAD FUNCTION STARTED', {
+    timestamp: new Date().toISOString(),
+    requestId: context.awsRequestId,
+    functionName: context.functionName,
+    functionVersion: context.functionVersion
+  });
+
   // Define CORS headers at the top level for consistent use
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -10,9 +18,11 @@ export const handler = async (event, context) => {
 
   // Safety wrapper to prevent any unhandled errors from causing 502s
   try {
+    console.log('📋 ENTERING MAIN HANDLER LOGIC');
 
   // Handle preflight requests
   if (event.httpMethod === 'OPTIONS') {
+    console.log('✅ HANDLING OPTIONS REQUEST - CORS PREFLIGHT');
     return {
       statusCode: 204,
       headers,
@@ -22,6 +32,7 @@ export const handler = async (event, context) => {
 
   // Only allow POST requests
   if (event.httpMethod !== 'POST') {
+    console.log('❌ METHOD NOT ALLOWED:', event.httpMethod);
     return {
       statusCode: 405,
       headers,
@@ -32,6 +43,8 @@ export const handler = async (event, context) => {
       })
     };
   }
+
+  console.log('✅ POST REQUEST CONFIRMED - PROCEEDING TO MAIN LOGIC');
 
   try {
     // Debug logging to help diagnose the issue
@@ -103,7 +116,9 @@ export const handler = async (event, context) => {
       message: 'This is a temporary response. Backend deployment needed for full functionality.'
     };
 
-    return {
+    console.log('🎉 SUCCESS - RETURNING RESPONSE:', { audioId, lang, bodySize });
+    
+    const successResponse = {
       statusCode: 200,
       headers,
       body: JSON.stringify({ 
@@ -111,6 +126,9 @@ export const handler = async (event, context) => {
         ...mockResponse 
       })
     };
+    
+    console.log('📤 FINAL RESPONSE:', JSON.stringify(successResponse, null, 2));
+    return successResponse;
 
   } catch (error) {
     console.error('Audio upload error details:', {
@@ -144,13 +162,14 @@ export const handler = async (event, context) => {
   
   } catch (unexpectedError) {
     // Final safety net - if anything goes wrong at all, return a proper error response
-    console.error('Unexpected error in asr-upload handler:', {
+    console.error('💥 CRITICAL ERROR IN ASR-UPLOAD HANDLER:', {
       name: unexpectedError.name,
       message: unexpectedError.message,
-      stack: unexpectedError.stack
+      stack: unexpectedError.stack,
+      timestamp: new Date().toISOString()
     });
     
-    return {
+    const errorResponse = {
       statusCode: 500,
       headers,
       body: JSON.stringify({
@@ -161,5 +180,8 @@ export const handler = async (event, context) => {
         timestamp: new Date().toISOString()
       })
     };
+    
+    console.log('🚨 RETURNING ERROR RESPONSE:', JSON.stringify(errorResponse, null, 2));
+    return errorResponse;
   }
 };
