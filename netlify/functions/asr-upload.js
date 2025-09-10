@@ -1,5 +1,5 @@
 // Temporary Netlify function to handle audio uploads until backend is deployed
-export const handler = async (event, context) => {
+exports.handler = async (event, context) => {
   // TRACE: Function entry point
   console.log('🚀 ASR-UPLOAD FUNCTION STARTED', {
     timestamp: new Date().toISOString(),

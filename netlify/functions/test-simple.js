@@ -1,6 +1,6 @@
-import { Handler } from '@netlify/functions';
+const { Handler } = require('@netlify/functions');
 
-export const handler = async (event, context) => {
+exports.handler = async (event, context) => {
   console.log('🚀 TEST-SIMPLE FUNCTION CALLED', {
     method: event.httpMethod,
     path: event.path,

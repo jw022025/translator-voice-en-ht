@@ -1,5 +1,5 @@
 // Temporary Netlify function to handle sample linking until backend is deployed
-export const handler = async (event, context) => {
+exports.handler = async (event, context) => {
   // Set CORS headers
   const headers = {
     'Access-Control-Allow-Origin': '*',
