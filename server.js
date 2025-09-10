@@ -286,6 +286,91 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // GET /api/export/raw - Export endpoint that can access filesystem
+  if (url.pathname === '/api/export/raw' && method === 'GET') {
+    try {
+      const params = url.searchParams;
+      const category = params.get('category');
+      const since = params.get('since');
+      const includeAudio = params.get('includeAudio') === 'true';
+      
+      logger.info('Export raw data requested', { category, since, includeAudio });
+      
+      // Read all pair files
+      ensureDir(PAIRS_DIR);
+      const pairFiles = fs.readdirSync(PAIRS_DIR).filter(f => f.endsWith('.pair.json'));
+      
+      const pairs = [];
+      
+      for (const file of pairFiles) {
+        try {
+          const pairData = JSON.parse(fs.readFileSync(path.join(PAIRS_DIR, file), 'utf8'));
+          
+          // Filter by category if specified
+          if (category && pairData.category !== category) continue;
+          
+          // Filter by date if specified
+          if (since && new Date(pairData.createdAt) < new Date(since)) continue;
+          
+          // Enrich with audio metadata if requested
+          if (includeAudio) {
+            // Try to read English audio metadata
+            if (pairData.en && pairData.en.audioRef) {
+              const enAudioPath = path.join(AUDIO_EN_DIR, `${pairData.en.audioRef}.json`);
+              if (fs.existsSync(enAudioPath)) {
+                const enAudioMeta = JSON.parse(fs.readFileSync(enAudioPath, 'utf8'));
+                pairData.en.audioFile = enAudioMeta.audioFile;
+                pairData.en.bytes = enAudioMeta.bytes;
+                pairData.en.codec = enAudioMeta.codec;
+                pairData.en.contentType = enAudioMeta.contentType;
+              }
+            }
+            
+            // Try to read Haitian Creole audio metadata
+            if (pairData.ht && pairData.ht.audioRef) {
+              const htAudioPath = path.join(AUDIO_HT_DIR, `${pairData.ht.audioRef}.json`);
+              if (fs.existsSync(htAudioPath)) {
+                const htAudioMeta = JSON.parse(fs.readFileSync(htAudioPath, 'utf8'));
+                pairData.ht.audioFile = htAudioMeta.audioFile;
+                pairData.ht.bytes = htAudioMeta.bytes;
+                pairData.ht.codec = htAudioMeta.codec;
+                pairData.ht.contentType = htAudioMeta.contentType;
+              }
+            }
+          }
+          
+          pairs.push(pairData);
+          
+        } catch (err) {
+          logger.warn('Failed to parse pair file', { file, error: err.message });
+        }
+      }
+      
+      // Sort by creation date (newest first)
+      pairs.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      
+      const exportData = {
+        metadata: {
+          exportedAt: new Date().toISOString(),
+          totalPairs: pairs.length,
+          category: category || 'all',
+          includeAudio: includeAudio,
+          source: 'filesystem'
+        },
+        data: pairs
+      };
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(exportData));
+      
+    } catch (err) {
+      logger.error('Export failed', { error: err.message });
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Export failed', details: err.message }));
+    }
+    return;
+  }
+
   // 404
   res.writeHead(404, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({ error: 'Not found' }));

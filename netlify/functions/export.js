@@ -35,9 +35,10 @@ exports.handler = async (event, context) => {
     const since = params.since; // ISO date string
     const includeAudio = params.includeAudio === 'true'; // include audio metadata
 
-    // For Netlify functions, we can't access the real file system
-    // So we'll return mock training data that shows the expected structure
-    const mockTrainingData = generateMockTrainingData(category, since, includeAudio);
+    // NOTE: In Netlify Functions, we can't access the local filesystem
+    // This would need to be replaced with a database or cloud storage solution
+    // For now, we'll return an informative message about the limitation
+    const trainingData = await getTrainingData(category, since, includeAudio);
 
     // Set appropriate content type and filename
     let contentType, filename, responseBody;
@@ -46,13 +47,13 @@ exports.handler = async (event, context) => {
       case 'csv':
         contentType = 'text/csv';
         filename = `training-data-${new Date().toISOString().split('T')[0]}.csv`;
-        responseBody = convertToCSV(mockTrainingData);
+        responseBody = convertToCSV(trainingData.data);
         break;
         
       case 'jsonl':
         contentType = 'application/x-jsonlines';
         filename = `training-data-${new Date().toISOString().split('T')[0]}.jsonl`;
-        responseBody = convertToJSONL(mockTrainingData);
+        responseBody = convertToJSONL(trainingData.data);
         break;
         
       default: // json
@@ -61,18 +62,19 @@ exports.handler = async (event, context) => {
         responseBody = JSON.stringify({
           metadata: {
             exportedAt: new Date().toISOString(),
-            totalPairs: mockTrainingData.length,
+            totalPairs: trainingData.data.length,
             category: category || 'all',
             includeAudio: includeAudio,
-            format: 'json'
+            format: 'json',
+            note: trainingData.note
           },
-          data: mockTrainingData
+          data: trainingData.data
         }, null, 2);
     }
 
     console.log('✅ EXPORT SUCCESS', {
       format,
-      dataCount: mockTrainingData.length,
+      dataCount: trainingData.data.length,
       filename
     });
 
@@ -100,6 +102,54 @@ exports.handler = async (event, context) => {
     };
   }
 };
+
+async function getTrainingData(category, since, includeAudio) {
+  // Try to fetch real data from the main server first
+  try {
+    console.log('🔍 Attempting to fetch real data from server...');
+    
+    // Construct the server URL - this would be your actual backend server
+    const serverUrl = process.env.BACKEND_URL || 'http://localhost:8080';
+    const params = new URLSearchParams();
+    if (category) params.set('category', category);
+    if (since) params.set('since', since);
+    if (includeAudio) params.set('includeAudio', 'true');
+    
+    const fetchUrl = `${serverUrl}/api/export/raw?${params.toString()}`;
+    console.log('📡 Fetching from:', fetchUrl);
+    
+    const response = await fetch(fetchUrl, {
+      timeout: 5000, // 5 second timeout
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      console.log('✅ Real data fetched successfully:', data.metadata);
+      
+      return {
+        data: data.data,
+        note: `Real data from server (${data.metadata.totalPairs} pairs)`
+      };
+    } else {
+      console.log('⚠️ Server response not OK:', response.status);
+      throw new Error(`Server responded with ${response.status}`);
+    }
+    
+  } catch (error) {
+    console.log('⚠️ Failed to fetch real data, using mock data:', error.message);
+    
+    // Fall back to mock data
+    const mockData = generateMockTrainingData(category, since, includeAudio);
+    
+    return {
+      data: mockData,
+      note: "MOCK DATA: Could not connect to server. This is sample data showing the expected format. For real data, ensure the backend server is running and accessible."
+    };
+  }
+}
 
 function generateMockTrainingData(category, since, includeAudio) {
   const mockData = [
