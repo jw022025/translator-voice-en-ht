@@ -4,11 +4,11 @@ services:
     image: translator:lab1
     container_name: translator
     ports:
-      - "8080:8080"
+      - "8080:8080"              # change left port if 8080 is busy on host
     environment:
       - PORT=8080
     volumes:
-      - ./data:/app/data      # ← this line is required
+      - ./data:/app/data         # persist audio + metadata on host
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://localhost:8080/healthz').then(r=>{if(r.status!==200) process.exit(1)}).catch(()=>process.exit(1))"]
       interval: 30s

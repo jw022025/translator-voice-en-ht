@@ -1097,6 +1097,28 @@
           headers:{'Content-Type': blob.type || 'application/octet-stream'}, 
           body: blob 
         });
+        
+        // Check if response is ok before parsing JSON
+        if (!res.ok) {
+          // Try to get error message from response
+          let errorMsg = `Server error (${res.status})`;
+          try {
+            const errorJson = await res.json();
+            errorMsg = errorJson.error || errorMsg;
+          } catch {
+            // If JSON parsing fails, try text
+            try {
+              const errorText = await res.text();
+              if (errorText.trim()) {
+                errorMsg = errorText.substring(0, 100); // Limit error message length
+              }
+            } catch {
+              // Ignore text parsing errors
+            }
+          }
+          throw new Error(errorMsg);
+        }
+        
         const json = await res.json();
         
         if (json.ok) {
@@ -1159,6 +1181,28 @@
           headers:{'Content-Type':'application/json'}, 
           body: JSON.stringify(payload) 
         });
+        
+        // Check if response is ok before parsing JSON
+        if (!res.ok) {
+          // Try to get error message from response
+          let errorMsg = `Server error (${res.status})`;
+          try {
+            const errorJson = await res.json();
+            errorMsg = errorJson.error || errorMsg;
+          } catch {
+            // If JSON parsing fails, try text
+            try {
+              const errorText = await res.text();
+              if (errorText.trim()) {
+                errorMsg = errorText.substring(0, 100); // Limit error message length
+              }
+            } catch {
+              // Ignore text parsing errors
+            }
+          }
+          throw new Error(errorMsg);
+        }
+        
         const json = await res.json();
         
         if (json.ok) {

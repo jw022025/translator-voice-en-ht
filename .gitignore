@@ -1,19 +1,21 @@
 # Node
-# Node
 node_modules/
 npm-debug.log
+package-lock.json
 
-# Env files
+# Env
 .env
 
-# Docker
+# Docker & logs
 *.log
-data/               # <-- exclude collected audio/metadata (too heavy for Git)
 *.pid
 *.tar
 *.gz
 
-# System files
+# Data (audio + metadata can be huge; keep out of Git)
+data/
+
+# System
 .DS_Store
 .vscode/
-.env
+.idea/
