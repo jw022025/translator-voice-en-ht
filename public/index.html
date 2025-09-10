@@ -815,6 +815,32 @@
 
         <div class="card">
           <h3 class="card-title">
+            <i class="fas fa-download"></i>
+            Export Data
+          </h3>
+          <div style="margin-bottom: 1rem;">
+            <label for="exportCategory" style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--neutral-700);">Category:</label>
+            <select id="exportCategory" style="width: 100%; padding: 0.5rem; border: 1px solid var(--neutral-300); border-radius: 6px; font-size: 0.9rem;">
+              <option value="">All Categories</option>
+              <option value="medical">Medical Only</option>
+              <option value="insurance">Insurance Only</option>
+            </select>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <button id="exportJSON" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.6rem;">
+              <i class="fas fa-file-code"></i> JSON
+            </button>
+            <button id="exportCSV" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.6rem;">
+              <i class="fas fa-file-csv"></i> CSV
+            </button>
+            <button id="exportJSONL" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.6rem;">
+              <i class="fas fa-list"></i> JSONL
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">
             <i class="fas fa-headphones"></i>
             Audio Tips
           </h3>
@@ -1091,51 +1117,129 @@
       statusEl.textContent = "📤 Uploading audio file...";
       statusEl.className = "recording-status";
       
+      // Detailed debugging logs
+      const uploadUrl = `${API_BASE}/api/asr/${which}`;
+      const requestHeaders = {'Content-Type': blob.type || 'application/octet-stream'};
+      
+      console.group(`🔍 UPLOAD DEBUG - ${which.toUpperCase()} - ${new Date().toISOString()}`);
+      console.log('📍 Upload URL:', uploadUrl);
+      console.log('📦 Blob Info:', {
+        size: blob.size,
+        type: blob.type,
+        sizeKB: Math.round(blob.size / 1024) + ' KB'
+      });
+      console.log('📋 Request Headers:', requestHeaders);
+      console.log('🌐 API_BASE:', API_BASE);
+      console.log('🏠 Current Origin:', location.origin);
+      console.log('🔗 Full Request URL:', uploadUrl);
+      
       try {
-        const res = await fetch(`${API_BASE}/api/asr/${which}`, { 
+        console.log(`🚀 Starting ${which} upload request...`);
+        const res = await fetch(uploadUrl, { 
           method:'POST', 
-          headers:{'Content-Type': blob.type || 'application/octet-stream'}, 
+          headers: requestHeaders, 
           body: blob 
         });
         
+        // Log detailed response info
+        console.log('📡 Response received:', {
+          status: res.status,
+          statusText: res.statusText,
+          ok: res.ok,
+          url: res.url,
+          type: res.type,
+          redirected: res.redirected
+        });
+        
+        // Log all response headers
+        console.log('🏷️ Response Headers:');
+        for (const [key, value] of res.headers.entries()) {
+          console.log(`  ${key}: ${value}`);
+        }
+        
+        const contentType = res.headers.get('content-type');
+        console.log('📄 Content-Type:', contentType);
+        
         // Check if response is ok before parsing JSON
         if (!res.ok) {
+          console.log('❌ Response not OK - attempting to read error details...');
           // Try to get error message from response
           let errorMsg = `Server error (${res.status})`;
+          let rawResponseText = '';
+          
           try {
-            const errorJson = await res.json();
-            errorMsg = errorJson.error || errorMsg;
-          } catch {
-            // If JSON parsing fails, try text
+            rawResponseText = await res.text();
+            console.log('📝 Raw Error Response Text:', rawResponseText);
+            console.log('📏 Response Length:', rawResponseText.length, 'characters');
+            
+            // Try to parse as JSON first
             try {
-              const errorText = await res.text();
-              if (errorText.trim()) {
-                errorMsg = errorText.substring(0, 100); // Limit error message length
+              const errorJson = JSON.parse(rawResponseText);
+              console.log('📋 Parsed Error JSON:', errorJson);
+              errorMsg = errorJson.error || errorJson.message || errorMsg;
+            } catch (jsonError) {
+              console.log('⚠️ Could not parse error response as JSON:', jsonError.message);
+              // Use raw text if available
+              if (rawResponseText.trim()) {
+                console.log('📄 Using raw response text as error');
+                errorMsg = rawResponseText.substring(0, 200); // Show more error details
               }
-            } catch {
-              // Ignore text parsing errors
             }
+          } catch (textError) {
+            console.error('💥 Failed to read error response text:', textError);
           }
+          
+          console.log('🚨 Final error message:', errorMsg);
+          console.groupEnd();
           throw new Error(errorMsg);
         }
         
-        const json = await res.json();
+        let responseText = await res.text();
+        console.log('📝 Raw Success Response Text:', responseText);
+        console.log('📏 Response Length:', responseText.length, 'characters');
+        
+        let json;
+        try {
+          json = JSON.parse(responseText);
+          console.log('✅ Parsed Success JSON:', json);
+        } catch (parseError) {
+          console.error('💥 Failed to parse success response as JSON:', parseError);
+          console.log('📄 Raw response that failed to parse:', responseText);
+          console.groupEnd();
+          throw new Error(`Invalid JSON response: ${parseError.message}`);
+        }
         
         if (json.ok) {
           if (which === 'en') { 
             enAudioId = json.id; 
             enOut.textContent = `✅ EN uploaded successfully! (ID: ${enAudioId})`;
             enOut.className = "recording-status success";
+            console.log('🎉 EN upload completed successfully:', enAudioId);
           } else { 
             htAudioId = json.id; 
             htOut.textContent = `✅ HT uploaded successfully! (ID: ${htAudioId})`;
             htOut.className = "recording-status success";
+            console.log('🎉 HT upload completed successfully:', htAudioId);
           }
         } else {
-          statusEl.textContent = `❌ Upload failed: ${json.error || 'Unknown error'}`;
+          const errorMsg = json.error || json.message || 'Unknown error';
+          statusEl.textContent = `❌ Upload failed: ${errorMsg}`;
           statusEl.className = "recording-status error";
+          console.error('❌ Upload failed - server returned ok:false:', json);
         }
+        
+        console.groupEnd();
+        
       } catch (err) {
+        console.group(`💥 UPLOAD EXCEPTION - ${which.toUpperCase()}`);
+        console.error('🚨 Upload Exception Details:', {
+          name: err.name,
+          message: err.message,
+          stack: err.stack
+        });
+        console.error('🔍 Original Error:', err);
+        console.groupEnd();
+        
         statusEl.textContent = `❌ Upload error: ${err.message}`;
         statusEl.className = "recording-status error";
       }
@@ -1231,6 +1335,89 @@
       btnLink.innerHTML = '<i class="fas fa-link"></i> Link & Save Translation Pair';
       btnLink.disabled = false;
     };
+
+    // Export functionality
+    const exportCategory = document.getElementById('exportCategory');
+    const exportJSON = document.getElementById('exportJSON');
+    const exportCSV = document.getElementById('exportCSV');
+    const exportJSONL = document.getElementById('exportJSONL');
+
+    async function exportData(format) {
+      const category = exportCategory.value;
+      const params = new URLSearchParams({
+        format: format,
+        includeAudio: 'true'
+      });
+      
+      if (category) {
+        params.set('category', category);
+      }
+
+      const url = `${API_BASE}/api/export/data?${params.toString()}`;
+      
+      try {
+        // Show loading state
+        const button = document.getElementById(`export${format.toUpperCase()}`);
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="loading"></i> Exporting...';
+        button.disabled = true;
+        
+        console.log('🚀 Starting export:', { format, category, url });
+        
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+          throw new Error(`Export failed: ${response.status} ${response.statusText}`);
+        }
+        
+        // Create download link
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        
+        // Get filename from Content-Disposition header or create default
+        const contentDisposition = response.headers.get('Content-Disposition');
+        let filename = `training-data-${new Date().toISOString().split('T')[0]}.${format}`;
+        if (contentDisposition) {
+          const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+          if (filenameMatch) {
+            filename = filenameMatch[1];
+          }
+        }
+        
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(downloadUrl);
+        
+        console.log('✅ Export completed:', { format, filename });
+        
+        // Restore button
+        button.innerHTML = originalText;
+        button.disabled = false;
+        
+      } catch (error) {
+        console.error('💥 Export error:', error);
+        
+        // Show error to user
+        const button = document.getElementById(`export${format.toUpperCase()}`);
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error';
+        button.disabled = false;
+        
+        setTimeout(() => {
+          button.innerHTML = originalText;
+        }, 3000);
+        
+        alert(`Export failed: ${error.message}`);
+      }
+    }
+
+    exportJSON.onclick = () => exportData('json');
+    exportCSV.onclick = () => exportData('csv');
+    exportJSONL.onclick = () => exportData('jsonl');
 
     // Initialize with first term
     btnGenerate.click();
